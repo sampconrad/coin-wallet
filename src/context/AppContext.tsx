@@ -22,7 +22,7 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       setCoinData(fetchedData);
       toast.success(`Coin data sucessfully fetched!`);
     } catch (error) {
-      toast.error(`API rate limit exceed. Try later.`);
+      toast.error(`API limit exceed. Try later.`);
       throw new Error(); // throwing error to addCoin Fn so we don't add the coin to the newCoinsToFetch arr
     } finally {
       setLoading(false);
@@ -41,20 +41,20 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
           setCoinsToFetch(newCoinsToFetch);
           toast.success(`${coin && coin.name} is now being tracked.`);
         } catch (error) {
-          toast.error(`Failed to add coin: ${inputValue}.`);
+          toast.error(`Failed to add coin: ${coin.name}.`); //falls here if it was able to validate the coin but not get fetch its data
         }
       } else {
         toast.error(`${coin && coin.name} is already being tracked.`);
       }
     } catch (error) {
-      toast.error(`Invalid coin: ${inputValue}`);
+      toast.error(`Failed to validate: ${inputValue}`); //falls here if not able to find a coin the its ID, name or symbol typed in the input
     }
   };
 
   const deleteCoin = (coinId: string) => {
     try {
       const updatedCoinDataArr = coinData.filter((coin) => coin.id !== coinId);
-      toast.success(`Successfully deleted: ${coinId}.`);
+      toast.success(`Deleted: ${coinId}.`);
       setCoinsToFetch((prev: string[]) => prev.filter((id) => id !== coinId));
       setCoinData(updatedCoinDataArr);
     } catch (error) {
