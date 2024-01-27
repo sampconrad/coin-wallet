@@ -34,7 +34,8 @@ const AppProvider = ({ children }: { children: ReactNode }) => {
       const coin = await api.isValidCoin(inputValue);
       if (coin && !coinsToFetch.includes(coin.id)) {
         const newCoinsToFetch = [...coinsToFetch, coin.id];
-        // nested try-catch. Ugly I know but gotta do it to prevent mismatch between what's on localStorage and what's on the state
+        // nested try-catch. Ugly I know, but gotta do it to prevent mismatch between what's on localStorage and what's on the state.
+        // this happens when the API limit is hit right after validating the coin but before fetching the coin data.
         try {
           await getCoinData(newCoinsToFetch);
           setCoinsToFetch(newCoinsToFetch);
