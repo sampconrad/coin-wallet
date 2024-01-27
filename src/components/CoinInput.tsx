@@ -42,7 +42,7 @@ export default function CoinInput() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className='space-y-8 w-full xl:w-2/3'>
+        className='space-y-8 w-full xl:w-2/3 2xl:w-1/2'>
         <FormField
           control={form.control}
           name='coin'

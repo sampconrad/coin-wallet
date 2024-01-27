@@ -10,11 +10,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { AppContext } from '@/context/AppContext';
+import { CoinData } from '@/types/cointypes';
 import { formatter } from '@/utils/formatter';
 import { X } from 'lucide-react';
 import { useContext } from 'react';
 import { Sparklines, SparklinesLine } from 'react-sparklines';
-import { CoinData } from '../types/cointypes';
 import { Button } from './ui/button';
 
 function CoinName(coin: CoinData) {
@@ -47,8 +47,9 @@ export default function CoinTable() {
           <TableHead>Coin</TableHead>
           <TableHead>Price</TableHead>
           <TableHead>24h</TableHead>
+          <TableHead>7d</TableHead>
           <TableHead>ATH</TableHead>
-          <TableHead>ATL</TableHead>
+          <TableHead>24h Volume</TableHead>
           <TableHead className='min-w-28'>Market Cap</TableHead>
           <TableHead className='text-center min-w-36'>Last 7 Days</TableHead>
           <TableHead className='text-right'></TableHead>
@@ -64,8 +65,12 @@ export default function CoinTable() {
               className={coin.price_change_percentage_24h > 0 ? 'text-green-600' : 'text-red-600'}>
               {coin.price_change_percentage_24h.toFixed(2) + '%'}
             </TableCell>
+            <TableCell
+              className={coin.price_change_percentage_7d_in_currency > 0 ? 'text-green-600' : 'text-red-600'}>
+              {coin.price_change_percentage_7d_in_currency.toFixed(2) + '%'}
+            </TableCell>
             <TableCell>{formatter.format(coin.ath)}</TableCell>
-            <TableCell>{formatter.format(coin.atl)}</TableCell>
+            <TableCell>{formatter.format(coin.total_volume)}</TableCell>
             <TableCell className='min-w-28'>{formatter.format(coin.market_cap)}</TableCell>
             <TableCell className='min-w-36'>
               <Sparklines data={coin.sparkline_in_7d.price}>
