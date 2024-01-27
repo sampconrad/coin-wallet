@@ -12,8 +12,8 @@ const apiInstance = axios.create({
 
 const api = {
   searchCoin: async (inputValue: string) => {
-    const response = await apiInstance.get(`/search?query=${inputValue}`);
-    return response.data.coins;
+    const { data } = await apiInstance.get(`/search?query=${inputValue}`);
+    return data.coins;
   },
 
   isValidCoin: async (inputValue: string): Promise<SearchedCoin | undefined> => {
@@ -35,13 +35,11 @@ const api = {
     }
   },
   
-  fetchCoinData: async (coinList: string[]) => {
-    console.log(coinList)
-    const response = await apiInstance.get(
-      `coins/markets?vs_currency=usd&ids=${coinList}&order=market_cap_desc&per_page=10&page=1&sparkline=true&locale=en`
+  fetchCoinData: async (coinsToFetch: string[]) => {
+    const { data } = await apiInstance.get(
+      `coins/markets?vs_currency=usd&ids=${coinsToFetch}&order=market_cap_desc&per_page=10&page=1&sparkline=true&locale=en`
     );
-    console.log(response.data)
-    return response.data;
+    return data;
   },
 };
 

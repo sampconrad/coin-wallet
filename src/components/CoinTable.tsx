@@ -31,10 +31,16 @@ function CoinName(coin: CoinData) {
 }
 
 export default function CoinTable() {
-  const { coinData, deleteCoin } = useContext(AppContext);
+  const { coinData, deleteCoin, coinsToFetch } = useContext(AppContext);
   return (
     <Table>
-      <TableCaption>{coinData.length === 0 && 'No coins currently being tracked.'}</TableCaption>
+      <TableCaption>
+        {coinsToFetch.length === 0
+          ? 'No coins currently being tracked.'
+          : coinData.length === 0
+          ? 'API data currently unavailable.'
+          : ''}
+      </TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className='text-left'>#</TableHead>

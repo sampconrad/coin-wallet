@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import api from '@/services/api';
 import { CoinDataArray } from '@/types/cointypes';
@@ -7,62 +8,67 @@ import toast from 'react-hot-toast';
 export const AppContext = createContext<AppContextType>({} as AppContextType);
 
 const AppProvider = ({ children }: { children: ReactNode }) => {
-  const [coinList, setCoinList] = useLocalStorage();
+  const [coinsToFetch, setCoinsToFetch] = useLocalStorage();
   const [coinData, setCoinData] = useState<CoinDataArray>([]);
   const [loading, setLoading] = useState(false);
 
-  const BASE_COINS = ['bitcoin', 'ethereum', 'klever'];
-
-  if (coinList.length === 0) {
-    setCoinList(BASE_COINS);
-  }
+  const getCoinData = async (coinsToFetch: string[]) => {
+    if (coinsToFetch.length === 0) {
+      return;
+    }
+    setLoading(true);
+    try {
+      const fetchedData = await api.fetchCoinData(coinsToFetch);
+      setCoinData(fetchedData);
+      toast.success(`Coin data sucessfully fetched!`);
+    } catch (error) {
+      toast.error(`API rate limit exceed. Try later`);
+      throw new Error(); // throwing error to addCoin Fn so we don't add the coin to the newCoinsToFetch arr
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const addCoin = async (inputValue: string) => {
     try {
       const coin = await api.isValidCoin(inputValue);
-      if (coin && !coinList.includes(coin.id)) {
-        setCoinList((prev: string[]) => [...prev, coin.id]);
-        toast.success(`Coin is being tracked: ${inputValue}`);
+      if (coin && !coinsToFetch.includes(coin.id)) {
+        const newCoinsToFetch = [...coinsToFetch, coin.id];
+        // nested try-catch. Ugly I know but gotta do it to prevent mismatch between what's on localStorage and what's on the state
+        try {
+          await getCoinData(newCoinsToFetch);
+          setCoinsToFetch(newCoinsToFetch);
+          toast.success(`Coin has been added: ${inputValue}`);
+        } catch (error) {
+          toast.error(`Failed to add coin: ${inputValue}`);
+        }
       } else {
-        toast.error(`Coin has already been added: ${coin && coin.name}`);
+        toast.error(`${coin && coin.name} is already being tracked`);
       }
     } catch (error) {
-      toast.error(`Failed to validate coin: ${inputValue}`);
+      toast.error(`Invalid coin: ${inputValue}`);
     }
   };
 
   const deleteCoin = (coinId: string) => {
     try {
-      setCoinList((prev: string[]) => prev.filter((id) => id !== coinId));
+      const updatedCoinDataArr = coinData.filter((coin) => coin.id !== coinId);
+      toast.success(`Successfully deleted: ${coinId}`);
+      setCoinsToFetch((prev: string[]) => prev.filter((id) => id !== coinId));
+      setCoinData(updatedCoinDataArr);
     } catch (error) {
-      toast.error(`Failed to delete coin: ${coinId}`);
+      toast.error(`Failed to delete: ${coinId}`);
     }
   };
 
   useEffect(() => {
-    const getCoinData = async () => {
-      setLoading(true);
-      try {
-        const coinData = await api.fetchCoinData(coinList);
-        setCoinData(coinData);
-        return coinData;
-      } catch (error) {
-        throw new Error();
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    toast.promise(getCoinData(), {
-      loading: 'Fetching latest coin data...',
-      success: 'Coin data sucessfully fetched!',
-      error: 'API rate limit exceed. Try later.',
-    });
-  }, [coinList]);
+    getCoinData(coinsToFetch); // if no coins are being tracked on load, resets to base coins
+  }, []);
 
   return (
     <AppContext.Provider
       value={{
+        coinsToFetch,
         coinData,
         addCoin,
         deleteCoin,
