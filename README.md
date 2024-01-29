@@ -1,5 +1,12 @@
 # Crypto Wallet
 
+## Initial Setup
+Before starting the project, you need to create a .env file in the root of the project and provide your own Coingecko API key:
+
+`VITE_BASE_URL='https://api.coingecko.com/api/v3/'`
+
+`API_KEY='key goes here'`
+
 ## Using npm
 
 Run commands
